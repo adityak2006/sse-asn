@@ -1,0 +1,18 @@
+Experiment,Metric,Value,Unit
+Baseline,Clean accuracy,98.88,%
+Baseline,Clean loss,0.0323,loss
+Baseline,Inference time,0.2089,ms per image
+FGSM epsilon 0.05,Adversarial accuracy,95.39,%
+FGSM epsilon 0.1,Adversarial accuracy,85.44,%
+FGSM epsilon 0.2,Adversarial accuracy,40.18,%
+Poisoned model,Clean accuracy,98.86,%
+Poisoned model,Clean loss,0.0553,loss
+Baseline,Actual 3 predicted as 8,2,images
+Poisoned model,Actual 3 predicted as 8,11,images
+Baseline,3-to-8 error rate,0.2,%
+Poisoned model,3-to-8 error rate,1.09,%
+Defended model,Clean accuracy,98.05,%
+Defended model,Clean loss,0.0563,loss
+Defended model,FGSM accuracy epsilon 0.05,96.23,%
+Defended model,FGSM accuracy epsilon 0.1,96.13,%
+Defended model,FGSM accuracy epsilon 0.2,98.27,%
