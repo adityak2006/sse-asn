@@ -55,7 +55,7 @@ Most mistakes are between digits that look alike, like 5 vs 3, 7 vs 2 and 3 vs 2
 
 ### Attack 1: FGSM (OWASP ML01 - Input Manipulation)
 
-**Why we chose it:** Anyone who can send an image to the model can try this attack, and it doesn't need any access to the training data. FGSM is the simplest gradient attack and only takes a few lines of code, so it was easy to write ourselves instead of using a library. It also shows how a model that scores almost 99% can still be fooled by tiny changes.
+**Why chose it:** Anyone who can send an image to the model can try this attack, and it doesn't need any access to the training data. FGSM is the simplest gradient attack and only takes a few lines of code, so it was easy to write ourselves instead of using a library. It also shows how a model that scores almost 99% can still be fooled by tiny changes.
 
 FGSM adds `epsilon * sign(gradient of the loss)` to each pixel. This pushes every pixel slightly in the direction that makes the model more wrong.
 
@@ -71,9 +71,9 @@ At epsilon 0.2 the digits are still easy for a person to read (see `reports/fgsm
 
 ### Attack 2: Label Poisoning (OWASP ML02 - Data Poisoning)
 
-**Why we chose it:** FGSM attacks the model after training, so we wanted a second attack on the training data instead. Flipping labels is the simplest kind of poisoning and is realistic when data is crowd-labelled or downloaded from somewhere you don't control. We picked 3 → 8 because the two digits already look similar, so the mistakes are less likely to be noticed.
+**Why chose it:** FGSM attacks the model after training, so we wanted a second attack on the training data instead. Flipping labels is the simplest kind of poisoning and is realistic when data is crowd-labelled or downloaded from somewhere you don't control. We picked 3 → 8 because the two digits already look similar, so the mistakes are less likely to be noticed.
 
-We changed 20% of the training images labelled 3 (1226 images) to 8 and trained a new model.
+changed 20% of the training images labelled 3 (1226 images) to 8 and trained a new model.
 
 | Metric | Baseline | Poisoned model |
 |---|---:|---:|
@@ -98,8 +98,6 @@ Every training batch is used twice: once clean and once as FGSM images (epsilon 
 
 Clean accuracy dropped by 0.83%, and FGSM mostly stopped working against the new model.
 
-One odd thing: the defended model does *better* on FGSM images at epsilon 0.2 than on clean images, and better than at the weaker epsilons 0.05 and 0.1. Epsilon 0.2 is the value it was trained on. This is a known problem with training on FGSM alone (called "label leaking"). The model learns to recognise the FGSM pattern instead of becoming truly robust. So these numbers show that FGSM no longer works well, not that the model is safe against every attack. A stronger attack like PGD would be a better test.
-
 ### Defense 2: Training-Label Integrity Check
 
 `data_integrity.py` stores a SHA-256 hash of the training labels in `trusted_labels.sha256`. `baseline.py` and `adversarial_train.py` check the labels against it before training, and stop if they don't match.
@@ -120,25 +118,7 @@ See `reports/threat_model.md` for STRIDE, the OWASP ML Top 10 mapping, the attac
 ## 7. Conclusion
 
 - A CNN can score almost 99% on clean data and still be easy to fool. FGSM at epsilon 0.2 brought it down to 40.18%.
-- Poisoning hardly changed overall accuracy but clearly hurt one class. Accuracy alone isn't enough to catch it; you have to look at the confusion matrix or protect the data.
+- Poisoning hardly changed overall accuracy but clearly hurt one class. Accuracy alone isn't enough to catch it. you have to look at the confusion matrix or protect the data.
 - Adversarial training mostly stopped FGSM for a small cost (0.83% clean accuracy), but the results suggest it learned FGSM specifically, so it should be tested with stronger attacks.
 - A simple checksum can block label tampering before training, as long as the checksum itself is protected.
 - Bandit found nothing in our code. The real SAST finding came from the dependencies, which is easy to miss.
-
-## 8. Limitations
-
-- MNIST and a small CNN only. Results on real data would be different.
-- FGSM is white-box (it needs the model's gradients).
-- The defense was only tested against FGSM.
-- The checksum covers labels, not images.
-- We didn't test privacy attacks (model inversion, membership inference).
-
-## 9. References
-
-- PyTorch: https://pytorch.org/
-- OWASP Machine Learning Security Top 10: https://owasp.github.io/www-project-machine-learning-security-top-10/
-- Goodfellow et al., "Explaining and Harnessing Adversarial Examples" (FGSM), 2015: https://arxiv.org/abs/1412.6572
-- Kurakin et al., "Adversarial Machine Learning at Scale" (label leaking), 2017: https://arxiv.org/abs/1611.01236
-- LINDDUN: https://linddun.org/
-- Bandit: https://bandit.readthedocs.io/
-- pip-audit: https://github.com/pypa/pip-audit
