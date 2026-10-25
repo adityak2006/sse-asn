@@ -1,7 +1,5 @@
 # Secure AI Systems - Red and Blue Teaming an MNIST Classifier
 
-```
-
 ## How to Run
 
 ```bash
